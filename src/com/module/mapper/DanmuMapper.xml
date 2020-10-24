@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.module.mapper.DanmuMapper">
+
+    <resultMap type="com.module.pojo.Danmu" id="DanmuResult">
+        <result property="id" column="id"/>
+        <result property="time" column="time"/>
+        <result property="type" column="type"/>
+        <result property="color" column="color"/>
+        <result property="author" column="author"/>
+        <result property="text" column="text"/>
+        <result property="filmid" column="filmid"/>
+        <result property="createtime" column="createtime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    </resultMap>
+
+
+    <select id="selectDanmuList" parameterType="com.module.pojo.Danmu" resultMap="DanmuResult">
+        select s.id,s.time,s.type,s.color,s.author,s.text,s.filmid,s.createtime from danmu s
+        <where>
+        </where>
+    </select>
+    <select id="selectDanmuById" parameterType="Integer" resultMap="DanmuResult">
+        select s.*
+		from danmu s
+        where s.id = #{id}
+    </select>
+    <select id="selectAll" resultMap="DanmuResult">
+        select s.*
+        from danmu s where 1=1
+        <if test="filmId != null">
+           and  filmid=#{filmId}
+        </if>
+    </select>
+    <insert id="insertDanmu" parameterType="com.module.pojo.Danmu" useGeneratedKeys="true" keyProperty="id">
+        insert into danmu (
+        <if test="time != null and time != '' ">time,</if>
+        <if test="type != null">type,</if>
+        <if test="color != null and color != '' ">color,</if>
+        <if test="author != null and author != '' ">author,</if>
+        <if test="text != null and text != '' ">text,</if>
+        <if test="filmid != null">filmid,</if>
+        <if test="createtime != null">createtime</if>
+        )values(
+        <trim prefixOverrides=",">
+            <if test="time != null and time != ''">#{time},</if>
+            <if test="type != null ">#{type},</if>
+            <if test="color != null and color != ''">#{color},</if>
+            <if test="author != null and author != ''">#{author},</if>
+            <if test="text != null and text != ''">#{text},</if>
+            <if test="filmid != null ">#{filmid},</if>
+            <if test="createtime != null">#{createtime,jdbcType=TIMESTAMP}</if>
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchAdd" parameterType="com.module.pojo.Danmu" useGeneratedKeys="true" keyProperty="id">
+        insert into danmu (
+        time, type, color, author, text, filmid, createtime )values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+            #{item.time}, #{item.type}, #{item.color}, #{item.author}, #{item.text}, #{item.filmid},
+            #{item.createtime,jdbcType=TIMESTAMP} )
+        </foreach>
+    </insert>
+
+    <update id="updateDanmu" parameterType="com.module.pojo.Danmu">
+        update danmu
+        <set>
+            <if test="time != null and time != ''">time = #{time},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="color != null and color != ''">color = #{color},</if>
+            <if test="author != null and author != ''">author = #{author},</if>
+            <if test="text != null and text != ''">text = #{text},</if>
+            <if test="filmid != null">filmid = #{filmid},</if>
+            <if test="createtime != null">createtime = #{createtime,jdbcType=TIMESTAMP}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        update danmu
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="time != null and time != ''">when id=#{item.id} then #{time}</if>
+                    <if test="type != null">when id=#{item.id} then #{type}</if>
+                    <if test="color != null and color != ''">when id=#{item.id} then #{color}</if>
+                    <if test="author != null and author != ''">when id=#{item.id} then #{author}</if>
+                    <if test="text != null and text != ''">when id=#{item.id} then #{text}</if>
+                    <if test="filmid != null">when id=#{item.id} then #{filmid}</if>
+                    <if test="createtime != null">when id=#{item.id} then #{createtime,jdbcType=TIMESTAMP}</if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <delete id="deleteDanmuById" parameterType="Integer">
+        delete from danmu where id = #{value}
+    </delete>
+
+    <delete id="batchDeleteDanmu" parameterType="Integer">
+        delete from danmu where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

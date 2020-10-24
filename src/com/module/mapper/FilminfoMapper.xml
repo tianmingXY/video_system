@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.module.mapper.FilminfoMapper">
+    <select id="countData" resultType="map">
+        select  type as result,count(*) as nums
+		from filminfo  group by type
+    </select>
+
+    <resultMap type="com.module.pojo.Filminfo" id="FilminfoResult">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="outline" column="outline"/>
+        <result property="picurl" column="picurl"/>
+        <result property="videourl" column="videourl"/>
+        <result property="type" column="type"/>
+        <result property="content" column="content"/>
+        <result property="author" column="author"/>
+        <result property="hits" column="hits"/>
+        <result property="state" column="state"/>
+        <result property="intro" column="intro"/>
+        <result property="sendyear" column="sendyear"/>
+        <result property="location" column="location"/>
+        <result property="isvip" column="isvip"/>
+        <result property="createtime" column="createtime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    </resultMap>
+
+
+    <select id="selectFilminfoList" parameterType="com.module.pojo.Filminfo" resultMap="FilminfoResult">
+        select
+        s.id,s.title,s.outline,s.picurl,s.videourl,s.type,s.content,s.author,s.hits,s.state,s.intro,s.sendyear,s.location,s.isvip,s.createtime
+        from filminfo s
+        <where>
+            <if test="title != null and title != ''">
+                AND s.title like concat('%', #{title}, '%')
+            </if>
+            <if test="type != null and type != ''">
+                AND s.type = #{type}
+            </if>
+        </where>
+    </select>
+    <select id="selectFilminfoById" parameterType="Integer" resultMap="FilminfoResult">
+        select s.*
+		from filminfo s
+        where s.id = #{id}
+    </select>
+    <select id="selectAll" resultMap="FilminfoResult">
+        select s.*
+        from filminfo s
+        where 1=1
+        <if test="title != null and title != '' ">
+            and title like concat('%',#{title},'%')
+        </if>
+        <if test="keyword != null and keyword != '' ">
+            and title like concat('%',#{keyword},'%')
+        </if>
+        <if test="type != null and type != '' ">
+            and type=#{type}
+        </if>
+        <if test="author != null and author != '' ">
+            and author=#{author}
+        </if>
+        <if test="state != null and state != '' ">
+            and state=#{state}
+        </if>
+    </select>
+    <insert id="insertFilminfo" parameterType="com.module.pojo.Filminfo" useGeneratedKeys="true" keyProperty="id">
+        insert into filminfo (
+        <if test="title != null and title != '' ">title,</if>
+        <if test="outline != null and outline != '' ">outline,</if>
+        <if test="picurl != null and picurl != '' ">picurl,</if>
+        <if test="videourl != null and videourl != '' ">videourl,</if>
+        <if test="type != null and type != '' ">type,</if>
+        <if test="content != null and content != '' ">content,</if>
+        <if test="author != null and author != '' ">author,</if>
+        <if test="hits != null">hits,</if>
+        <if test="state != null and state != '' ">state,</if>
+        <if test="intro != null and intro != '' ">intro,</if>
+        <if test="sendyear != null and sendyear != '' ">sendyear,</if>
+        <if test="location != null and location != '' ">location,</if>
+        <if test="isvip != null">isvip,</if>
+        <if test="createtime != null">createtime</if>
+        )values(
+        <trim prefixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="outline != null and outline != ''">#{outline},</if>
+            <if test="picurl != null and picurl != ''">#{picurl},</if>
+            <if test="videourl != null and videourl != ''">#{videourl},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="author != null and author != ''">#{author},</if>
+            <if test="hits != null ">#{hits},</if>
+            <if test="state != null and state != ''">#{state},</if>
+            <if test="intro != null and intro != ''">#{intro},</if>
+            <if test="sendyear != null and sendyear != ''">#{sendyear},</if>
+            <if test="location != null and location != ''">#{location},</if>
+            <if test="isvip != null ">#{isvip},</if>
+            <if test="createtime != null">#{createtime,jdbcType=TIMESTAMP}</if>
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchAdd" parameterType="com.module.pojo.Filminfo" useGeneratedKeys="true" keyProperty="id">
+        insert into filminfo (
+        title, outline, picurl, videourl, type, content, author, hits, state, intro, sendyear, location, isvip,
+        createtime )values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+            #{item.title}, #{item.outline}, #{item.picurl}, #{item.videourl}, #{item.type}, #{item.content},
+            #{item.author}, #{item.hits}, #{item.state}, #{item.intro}, #{item.sendyear}, #{item.location},
+            #{item.isvip}, #{item.createtime,jdbcType=TIMESTAMP} )
+        </foreach>
+    </insert>
+
+
+    <update id="updateFilminfoHits" parameterType="int">
+       update filminfo set hits=(hits+1) where id = #{id}
+    </update>
+    <update id="updateFilminfo" parameterType="com.module.pojo.Filminfo">
+        update filminfo
+        <set>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="outline != null and outline != ''">outline = #{outline},</if>
+            <if test="picurl != null and picurl != ''">picurl = #{picurl},</if>
+            <if test="videourl != null and videourl != ''">videourl = #{videourl},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="author != null and author != ''">author = #{author},</if>
+            <if test="hits != null">hits = #{hits},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
+            <if test="intro != null and intro != ''">intro = #{intro},</if>
+            <if test="sendyear != null and sendyear != ''">sendyear = #{sendyear},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="isvip != null">isvip = #{isvip},</if>
+            <if test="createtime != null">createtime = #{createtime,jdbcType=TIMESTAMP}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        update filminfo
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="title != null and title != ''">when id=#{item.id} then #{title}</if>
+                    <if test="outline != null and outline != ''">when id=#{item.id} then #{outline}</if>
+                    <if test="picurl != null and picurl != ''">when id=#{item.id} then #{picurl}</if>
+                    <if test="videourl != null and videourl != ''">when id=#{item.id} then #{videourl}</if>
+                    <if test="type != null and type != ''">when id=#{item.id} then #{type}</if>
+                    <if test="content != null and content != ''">when id=#{item.id} then #{content}</if>
+                    <if test="author != null and author != ''">when id=#{item.id} then #{author}</if>
+                    <if test="hits != null">when id=#{item.id} then #{hits}</if>
+                    <if test="state != null and state != ''">when id=#{item.id} then #{state}</if>
+                    <if test="intro != null and intro != ''">when id=#{item.id} then #{intro}</if>
+                    <if test="sendyear != null and sendyear != ''">when id=#{item.id} then #{sendyear}</if>
+                    <if test="location != null and location != ''">when id=#{item.id} then #{location}</if>
+                    <if test="isvip != null">when id=#{item.id} then #{isvip}</if>
+                    <if test="createtime != null">when id=#{item.id} then #{createtime,jdbcType=TIMESTAMP}</if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <delete id="deleteFilminfoById" parameterType="Integer">
+        delete from filminfo where id = #{value}
+    </delete>
+
+    <delete id="batchDeleteFilminfo" parameterType="Integer">
+        delete from filminfo where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

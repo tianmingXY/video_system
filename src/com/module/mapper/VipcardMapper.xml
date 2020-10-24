@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.module.mapper.VipcardMapper">
+
+    <resultMap type="com.module.pojo.Vipcard" id="VipcardResult">
+        <result property="id" column="id"/>
+        <result property="userid" column="userid"/>
+        <result property="username" column="username"/>
+        <result property="cardcode" column="cardcode"/>
+        <result property="state" column="state"/>
+        <result property="usertime" column="usertime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+        <result property="createtime" column="createtime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    </resultMap>
+
+
+    <select id="selectVipcardList" parameterType="com.module.pojo.Vipcard" resultMap="VipcardResult">
+        select s.id,s.userid,s.username,s.cardcode,s.state,s.usertime,s.createtime from vipcard s
+        <where>
+        </where>
+    </select>
+    <select id="selectVipcardById" parameterType="Integer" resultMap="VipcardResult">
+        select s.* 
+		from vipcard s 
+        where s.id = #{id}
+    </select>
+    <select id="selectVipcardByCardcode" parameterType="string" resultMap="VipcardResult">
+        select s.*
+		from vipcard s
+        where s.cardcode = #{cardcode}
+    </select>
+    <select id="selectAll" resultMap="VipcardResult">
+        select s.* 
+		from vipcard s 
+    </select>
+    <insert id="insertVipcard" parameterType="com.module.pojo.Vipcard" useGeneratedKeys="true" keyProperty="id">
+        insert into vipcard (
+        <if test="userid != null">userid,</if>
+        <if test="username != null and username != '' ">username,</if>
+        <if test="cardcode != null and cardcode != '' ">cardcode,</if>
+        <if test="state != null and state != '' ">state,</if>
+        <if test="usertime != null">usertime,</if>
+        <if test="createtime != null">createtime</if>
+        )values(
+        <trim prefixOverrides=",">
+            <if test="userid != null ">#{userid},</if>
+            <if test="username != null and username != ''">#{username},</if>
+            <if test="cardcode != null and cardcode != ''">#{cardcode},</if>
+            <if test="state != null and state != ''">#{state},</if>
+            <if test="usertime != null">#{usertime,jdbcType=TIMESTAMP},</if>
+            <if test="createtime != null">#{createtime,jdbcType=TIMESTAMP}</if>
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchAdd" parameterType="com.module.pojo.Vipcard" useGeneratedKeys="true" keyProperty="id">
+        insert into vipcard (
+        userid, username, cardcode, state, usertime, createtime )values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+            #{item.userid}, #{item.username}, #{item.cardcode}, #{item.state}, #{item.usertime,jdbcType=TIMESTAMP},
+            #{item.createtime,jdbcType=TIMESTAMP} )
+        </foreach>
+    </insert>
+
+    <update id="updateVipcard" parameterType="com.module.pojo.Vipcard">
+        update vipcard
+        <set>
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="cardcode != null and cardcode != ''">cardcode = #{cardcode},</if>
+            <if test="state != null and state != ''">state = #{state},</if>
+            <if test="usertime != null">usertime = #{usertime,jdbcType=TIMESTAMP},</if>
+            <if test="createtime != null">createtime = #{createtime,jdbcType=TIMESTAMP}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="batchUpdate" parameterType="java.util.List">
+        update vipcard
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="userid != null">when id=#{item.id} then #{userid}</if>
+                    <if test="username != null and username != ''">when id=#{item.id} then #{username}</if>
+                    <if test="cardcode != null and cardcode != ''">when id=#{item.id} then #{cardcode}</if>
+                    <if test="state != null and state != ''">when id=#{item.id} then #{state}</if>
+                    <if test="usertime != null">when id=#{item.id} then #{usertime,jdbcType=TIMESTAMP}</if>
+                    <if test="createtime != null">when id=#{item.id} then #{createtime,jdbcType=TIMESTAMP}</if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <delete id="deleteVipcardById" parameterType="Integer">
+        delete from vipcard where id = #{value}
+    </delete>
+
+    <delete id="batchDeleteVipcard" parameterType="Integer">
+        delete from vipcard where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
